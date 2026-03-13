@@ -25,11 +25,22 @@
         "中国AI政策：中央与地方优先级分歧浮现，地方政府争相拥抱AI热潮，北京发出安全警告"
       ],
       "ai": [
-        {"title": "Netflix斥资约6亿美元收购本·阿弗莱克的AI初创公司", "comment": "好莱坞大咖押注生成式AI内容创作新模式，影视行业AI化提速信号"},
-        {"title": "Anthropic升级Claude跨应用协作能力", "comment": "Claude现可在Excel和PowerPoint之间无缝传递上下文，办公AI助手进一步走向\"无感嵌入\""},
-        {"title": "Meta发布MTIA 300芯片用于推荐系统训练", "comment": "更强的MTIA 400/450/500系列将主攻生成式AI推理，Meta加速摆脱对英伟达GPU的依赖"},
-        {"title": "Google将Chrome内置Gemini助手扩展至更多国家", "comment": "新增50+语言支持，AI助手争夺全球用户入口白热化"},
-        {"title": "HuggingFace热门论文：OpenClaw-RL", "comment": "用自然语言对话替代手动编写奖励函数训练RL智能体，降低强化学习门槛"}
+        {
+          "title": "Anthropic 发布 Claude Opus 4.6，推理能力大幅提升",
+          "comment": "新版本在复杂推理和长文本分析上表现显著提升，特别是在代码生成和多步骤任务规划方面。Agent 场景的可靠性也有明显改善。"
+        },
+        {
+          "title": "OpenAI 开源 Codex CLI，开发者可本地运行编程助手",
+          "comment": "支持本地文件系统操作和 shell 命令执行，开发者不再需要依赖云端。配合 gpt-5.4 模型，编码效率提升明显。"
+        },
+        {
+          "title": "Google DeepMind 推出 Gemini 2.5 Pro，多模态理解再突破",
+          "comment": "在视频理解、长文档分析和科学推理基准测试中创下新高。200万 token 上下文窗口让处理超长文档成为可能。"
+        },
+        {
+          "title": "Meta 发布 Llama 4 Scout/Maverick，开源模型追赶闭源",
+          "comment": "Scout 17B 参数量下性能接近 GPT-4 级别，Maverick 400B 在多语言任务上表现突出。开源社区迎来新一轮fine-tuning热潮。"
+        }
       ],
       "weather": {
         "condition": "早晨多云转阴，有零星阵雨，下午放晴",
@@ -40,13 +51,34 @@
         "tip": "出门带伞，上午可能有雨，下午转晴回暖"
       },
       "markets": {
-        "asx200": {"value": "8,615", "change": "-1.5%"},
-        "sp500": {"value": "6,775", "change": "-0.1%"},
-        "dow": {"value": "47,417", "change": "-0.6%"},
-        "gold": {"value": "$5,146/oz", "change": "-0.6%"},
-        "aud": {"value": "71.32¢", "change": "-0.3%"},
-        "iron": {"value": "$104.60/t", "change": "+0.5%"},
-        "oil": {"value": "$100.25/bbl", "change": "+9%"}
+        "asx200": {
+          "value": "8,615",
+          "change": "-1.5%"
+        },
+        "sp500": {
+          "value": "6,775",
+          "change": "-0.1%"
+        },
+        "dow": {
+          "value": "47,417",
+          "change": "-0.6%"
+        },
+        "gold": {
+          "value": "$5,146/oz",
+          "change": "-0.6%"
+        },
+        "aud": {
+          "value": "71.32¢",
+          "change": "-0.3%"
+        },
+        "iron": {
+          "value": "$104.60/t",
+          "change": "+0.5%"
+        },
+        "oil": {
+          "value": "$100.25/bbl",
+          "change": "+9%"
+        }
       }
     },
     "dedao": [
