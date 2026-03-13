@@ -285,37 +285,67 @@
 </div>
 
 <script>
-let allData = [];
+let allDates = [];
+let allData = {};
 let currentIdx = 0;
 
 async function init() {
   try {
-    const resp = await fetch('data.json');
-    allData = await resp.json();
-    allData.sort((a, b) => b.date.localeCompare(a.date)); // newest first
+    // Try posts/index.json first, fallback to data.json
+    let dates = [];
+    try {
+      const ir = await fetch('posts/index.json');
+      if (ir.ok) dates = await ir.json();
+    } catch(_){}
+
+    if (dates.length) {
+      allDates = dates.sort().reverse();
+    } else {
+      // Fallback: load old data.json
+      const resp = await fetch('data.json');
+      const arr = await resp.json();
+      arr.sort((a, b) => b.date.localeCompare(a.date));
+      arr.forEach(d => { allData[d.date] = d; });
+      allDates = arr.map(d => d.date);
+    }
+
     renderDateNav();
-    renderDay(0);
+    if (allDates.length) selectDay(0);
+    else document.getElementById('content').innerHTML = '<div class="loading">暂无数据</div>';
   } catch (e) {
     document.getElementById('content').innerHTML = '<div class="loading">加载失败</div>';
   }
 }
 
+async function loadDay(date) {
+  if (allData[date]) return allData[date];
+  try {
+    const res = await fetch('posts/' + date + '.json');
+    if (res.ok) { const d = await res.json(); allData[date] = d; return d; }
+  } catch(_){}
+  return null;
+}
+
 function renderDateNav() {
   const nav = document.getElementById('dateNav');
-  nav.innerHTML = allData.map((d, i) =>
-    `<button class="date-btn ${i === 0 ? 'active' : ''}" onclick="selectDay(${i})">${d.date} ${d.weekday}</button>`
-  ).join('');
+  nav.innerHTML = allDates.map((d, i) => {
+    const cached = allData[d];
+    const label = cached ? `${d.slice(5)} ${cached.weekday||''}` : d.slice(5);
+    return `<button class="date-btn ${i === currentIdx ? 'active' : ''}" onclick="selectDay(${i})">${label}</button>`;
+  }).join('');
 }
 
-function selectDay(idx) {
+async function selectDay(idx) {
   currentIdx = idx;
-  document.querySelectorAll('.date-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
-  renderDay(idx);
+  renderDateNav();
+  const date = allDates[idx];
+  document.getElementById('content').innerHTML = '<div class="loading"><div class="spinner"></div><div>加载中...</div></div>';
+  const day = await loadDay(date);
+  if (!day) { document.getElementById('content').innerHTML = '<div class="loading">加载失败</div>'; return; }
+  renderDay(day);
 }
 
-function renderDay(idx) {
-  const day = allData[idx];
-  if (!day) return;
+function renderDay(day) {
   const b = day.briefing;
   const content = document.getElementById('content');
   let html = '';
