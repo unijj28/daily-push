@@ -27,13 +27,25 @@ def get_weekday():
 # ─── Extract briefing from push-agent sessions ───
 
 def extract_briefing_text(date):
-    """Find the briefing message from push-agent sessions for given date."""
+    """Find the briefing message from push-agent sessions for given date.
+    
+    Sessions are timestamped in UTC, but briefings are sent at 8am Melbourne time
+    (= previous UTC day in summer). We search by message content rather than
+    raw line timestamp to handle the UTC offset correctly.
+    """
+    from datetime import datetime, timedelta
+    # Convert local date to Chinese format for content-based matching
+    dt = datetime.strptime(date, '%Y-%m-%d')
+    # e.g. "2026年3月21日"
+    chinese_date = f"{dt.year}年{dt.month}月{dt.day}日"
+    
     files = glob.glob(os.path.join(SESSIONS_DIR, '*.jsonl'))
     briefing = None
     for f in sorted(files, key=os.path.getmtime, reverse=True):
         with open(f) as fh:
             for line in fh:
-                if date not in line:
+                # Quick pre-filter: skip lines that can't contain today's briefing
+                if '每日简报' not in line:
                     continue
                 try:
                     obj = json.loads(line)
@@ -43,7 +55,8 @@ def extract_briefing_text(date):
                         if (isinstance(c, dict) and c.get('type') == 'toolCall' 
                             and c.get('name') == 'message'):
                             m = c.get('arguments', {}).get('message', '')
-                            if len(m) > 500 and '每日简报' in m:
+                            # Match by Chinese date in content (handles UTC offset)
+                            if len(m) > 500 and '每日简报' in m and chinese_date in m:
                                 briefing = m
                 except:
                     pass
