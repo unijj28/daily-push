@@ -70,6 +70,8 @@ def extract_briefing_text(date):
                     obj = json.loads(line)
                     if obj.get('type') != 'message':
                         continue
+                    if obj.get('message', {}).get('role') != 'assistant':
+                        continue
                     for c in obj['message'].get('content', []):
                         if not isinstance(c, dict):
                             continue
