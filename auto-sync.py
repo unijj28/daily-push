@@ -71,14 +71,16 @@ def extract_briefing_text(date):
                     if obj.get('type') != 'message':
                         continue
                     for c in obj['message'].get('content', []):
-                        if (
-                            isinstance(c, dict)
-                            and c.get('type') == 'toolCall'
-                            and c.get('name') == 'message'
-                        ):
+                        if not isinstance(c, dict):
+                            continue
+                        m = ''
+                        if c.get('type') == 'toolCall' and c.get('name') == 'message':
                             m = c.get('arguments', {}).get('message', '')
-                            if len(m) > 500 and '每日简报' in m and chinese_date in m:
-                                briefing = m
+                        elif c.get('type') == 'text':
+                            m = c.get('text', '')
+                        
+                        if len(m) > 500 and '每日简报' in m and chinese_date in m:
+                            briefing = m
                 except Exception:
                     pass
         if briefing:
