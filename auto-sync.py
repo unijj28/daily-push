@@ -509,9 +509,20 @@ def create_archive_database(api_key, parent_page_id):
             'Platform': {'multi_select': {'options': []}},
             'Tags': {'multi_select': {'options': []}},
             'Summary': {'rich_text': {}},
+            'Preview': {'rich_text': {}},
+            'Content': {'rich_text': {}},
         },
     }
     return notion_request('POST', '/databases', api_key, payload)
+
+
+def ensure_archive_database_schema(api_key, database_id):
+    notion_request('PATCH', f'/databases/{database_id}', api_key, {
+        'properties': {
+            'Preview': {'rich_text': {}},
+            'Content': {'rich_text': {}},
+        }
+    })
 
 
 def resolve_notion_targets(api_key):
@@ -557,6 +568,19 @@ def notion_page_properties(post):
     date = post['date']
     summary = build_summary(post)
     tags = ['daily-push', 'briefing'] + (['dedao'] if post.get('dedao') else [])
+    preview = (post.get('briefingText', '') or '').strip().replace('\n', ' ')
+    preview = preview[:280]
+    full_content = (post.get('briefingText', '') or '').strip()
+
+    if post.get('dedao'):
+        dedao_lines = []
+        for article in post['dedao']:
+            title = article.get('title', '')
+            course = article.get('course', '')
+            dedao_lines.append(f'[{course}] {title}'.strip())
+        if dedao_lines:
+            full_content = f"{full_content}\n\n得到分析\n" + '\n'.join(dedao_lines)
+
     return {
         'Name': {
             'title': [{'type': 'text', 'text': {'content': f'{date} 每日归档'}}],
@@ -569,6 +593,8 @@ def notion_page_properties(post):
         'Platform': {'multi_select': [{'name': 'Telegram'}, {'name': 'Web'}, {'name': 'Notion'}]},
         'Tags': {'multi_select': [{'name': tag} for tag in tags]},
         'Summary': {'rich_text': [{'type': 'text', 'text': {'content': summary[:2000]}}]},
+        'Preview': {'rich_text': [{'type': 'text', 'text': {'content': preview[:2000]}}]},
+        'Content': {'rich_text': [{'type': 'text', 'text': {'content': full_content[:2000]}}]},
     }
 
 
@@ -605,6 +631,7 @@ def upsert_post_to_notion(post):
         return False
 
     database_id = targets['database_id']
+    ensure_archive_database_schema(api_key, database_id)
     children = build_notion_children(post)
     properties = notion_page_properties(post)
     existing = notion_query_by_date(api_key, database_id, post['date'])
