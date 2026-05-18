@@ -68,19 +68,21 @@ def extract_briefing_text(date):
                     continue
                 try:
                     obj = json.loads(line)
-                    if obj.get('type') != 'message':
-                        continue
-                    if obj.get('message', {}).get('role') != 'assistant':
-                        continue
-                    for c in obj['message'].get('content', []):
-                        if not isinstance(c, dict):
-                            continue
-                        m = ''
-                        if c.get('type') == 'toolCall' and c.get('name') == 'message':
-                            m = c.get('arguments', {}).get('message', '')
-                        elif c.get('type') == 'text':
-                            m = c.get('text', '')
-                        
+                    if obj.get('type') == 'message' and obj.get('message', {}).get('role') == 'assistant':
+                        for c in obj['message'].get('content', []):
+                            if not isinstance(c, dict):
+                                continue
+                            m = ''
+                            if c.get('type') == 'toolCall' and c.get('name') == 'message':
+                                m = c.get('arguments', {}).get('message', '')
+                            elif c.get('type') == 'text':
+                                m = c.get('text', '')
+
+                            if len(m) > 500 and '每日简报' in m and chinese_date in m:
+                                briefing = m
+                    elif obj.get('type') == 'tool.call' and obj.get('data', {}).get('name') == 'message':
+                        args = obj.get('data', {}).get('arguments', {})
+                        m = args.get('message', '') if isinstance(args, dict) else ''
                         if len(m) > 500 and '每日简报' in m and chinese_date in m:
                             briefing = m
                 except Exception:
